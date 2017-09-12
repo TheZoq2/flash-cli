@@ -13,6 +13,9 @@ extern crate serde;
 #[macro_use]
 extern crate error_chain;
 
+#[macro_use]
+extern crate duct;
+
 error_chain! {
     errors {
         InvalidStatus(status: reqwest::StatusCode) {
@@ -112,13 +115,30 @@ fn main() {
              .help("Port to use when communicating with the server")
              .takes_value(true)
         )
-        .arg(Arg::with_name("TARGET_DIR")
+        .arg(Arg::with_name("target_dir")
+             .long("target_dir")
+             .short("o")
+             .value_name("TARGET_DIR")
+             .takes_value(true)
              .help("Location to create symlinks to the files")
-             .index(1)
+        )
+        .arg(Arg::with_name("source_dir")
+             .long("source_dir")
+             .short("i")
+             .value_name("SOURCE_DIR")
+             .takes_value(true)
+             .help("Directory where the files are stored")
         )
         .get_matches();
 
-    let target_dir = matches.value_of("TARGET_DIR").unwrap_or("/tmp/flash-cli");
+    let source_dir = PathBuf::from(
+            matches.value_of("source_dir")
+                .unwrap_or("")
+        );
+    let target_dir = PathBuf::from(
+            matches.value_of("target_dir")
+                .unwrap_or("/tmp/flash-cli")
+        );
     let port = matches.value_of("port").and_then(|val| val.parse().ok()).unwrap();
 
     let list_data = if let Some(search_term) = matches.value_of("search") {
@@ -131,5 +151,15 @@ fn main() {
         panic!("You must either specify a search term or a list id");
     };
 
-    println!("{:?}", make_filename_requests(&list_data, port).unwrap());
+    let files = make_filename_requests(&list_data, port).unwrap();
+
+    for file in files {
+        let full_target_path = target_dir.join(&file);
+        let full_source_path = source_dir.join(&file);
+
+        println!("{:?}", full_target_path);
+        println!("{:?}", full_source_path);
+
+        cmd!("ln", "-s", full_source_path, full_target_path).read().unwrap();
+    }
 }
