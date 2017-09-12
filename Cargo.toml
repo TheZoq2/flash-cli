@@ -1,0 +1,13 @@
+[package]
+name = "flash-cli"
+version = "0.1.0"
+authors = ["TheZoq2 <frans.skarman@gmail.com>"]
+
+[dependencies]
+clap = "*"
+serde = "*"
+serde_json = "*"
+serde_derive = "*"
+reqwest = "*"
+error-chain = "*"
+
