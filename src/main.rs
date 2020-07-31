@@ -43,7 +43,7 @@ fn make_search_request(search_term: &str, port: u32) -> Result<FileListData> {
 
     let mut response = reqwest::get(&target_url)?.error_for_status()?;
 
-    if response.status() != reqwest::StatusCode::Ok {
+    if response.status() != reqwest::StatusCode::OK {
         bail!(ErrorKind::InvalidStatus(response.status()))
     }
 
@@ -53,9 +53,11 @@ fn make_list_info_request(list_id: u32, port: u32) -> Result<FileListData> {
     // Send a search request to the server
     let target_url = format!("http://localhost:{}/list?action=list_info&list_id={}", port, list_id);
 
+    println!("target_url");
+
     let mut response = reqwest::get(&target_url)?.error_for_status()?;
 
-    if response.status() != reqwest::StatusCode::Ok {
+    if response.status() != reqwest::StatusCode::OK {
         bail!(ErrorKind::InvalidStatus(response.status()))
     }
 
@@ -73,7 +75,7 @@ fn make_filename_requests(list: &FileListData, port: u32) -> Result<Vec<PathBuf>
 
         let mut response = reqwest::get(&target_url)?.error_for_status()?;
 
-        if response.status() != reqwest::StatusCode::Ok {
+        if response.status() != reqwest::StatusCode::OK {
             bail!(ErrorKind::InvalidStatus(response.status()))
         }
 
